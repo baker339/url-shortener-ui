@@ -36,6 +36,7 @@ export default function Home() {
                 setError(data.error || "Failed to shorten URL");
             }
         } catch (err) {
+            console.error(err);
             setError("Something went wrong!");
         } finally {
             setLoading(false);
