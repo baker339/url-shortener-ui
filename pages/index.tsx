@@ -29,6 +29,7 @@ export default function Home() {
             }
         } catch (err) {
             setError("Something went wrong!");
+            console.error(err);
         } finally {
             setLoading(false);
         }
