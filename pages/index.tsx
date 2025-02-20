@@ -15,7 +15,7 @@ export default function Home() {
         setLoading(true);
         setError("");
 
-        let formattedUrl = originalUrl.trim();
+        let formattedUrl = originalUrl.trim().replace(" ", "");
 
         // ✅ Auto-correct URL if missing "http://" or "https://"
         if (!/^https?:\/\//i.test(formattedUrl)) {
