@@ -1,101 +1,102 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 
-const API_URL = "https://url-shortener-3b7-eg.fly.dev"; // 🔥 Replace with your actual backend URL
+const API_URL = "https://url-shortener-3b7-eg.fly.dev"; //
 
-function Home() {
-  const [originalUrl, setOriginalUrl] = useState("");
-  const [shortenedUrl, setShortenedUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function Home() {
+    const [originalUrl, setOriginalUrl] = useState("");
+    const [shortenedUrl, setShortenedUrl] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-  const shortenUrl = async () => {
-    if (!originalUrl) return;
+    const shortenUrl = async () => {
+        if (!originalUrl) return;
+        setLoading(true);
+        setError("");
 
-    setLoading(true);
-    setError("");
+        try {
+            const response = await fetch(`${API_URL}/shorten`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ original_url: originalUrl }),
+            });
 
-    try {
-      const response = await fetch(`${API_URL}/shorten`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ original_url: originalUrl }),
-      });
+            const data = await response.json();
+            if (response.ok) {
+                setShortenedUrl(data.short_url);
+            } else {
+                setError(data.error || "Failed to shorten URL");
+            }
+        } catch (err) {
+            setError("Something went wrong!");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      const data = await response.json();
-      if (response.ok) {
-        setShortenedUrl(data.short_url);
-      } else {
-        setError(data.error || "Failed to shorten URL");
-      }
-    } catch (err) {
-      setError("Something went wrong! " + err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(shortenedUrl);
+        alert("Copied to clipboard!");
+    };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(shortenedUrl);
-    alert("Copied to clipboard!");
-  };
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 text-white p-6">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="glass p-8 w-full max-w-md text-center shadow-lg"
+            >
+                <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    Futuristic URL Shortener
+                </h1>
 
-  return (
-      <div style={{ textAlign: "center", padding: "50px", fontFamily: "Arial" }}>
-        <h1>URL Shortener</h1>
-        <input
-            type="text"
-            placeholder="Enter URL..."
-            value={originalUrl}
-            onChange={(e) => setOriginalUrl(e.target.value)}
-            style={{
-              padding: "10px",
-              width: "300px",
-              borderRadius: "5px",
-              border: "1px solid #ddd",
-            }}
-        />
-        <button
-            onClick={shortenUrl}
-            style={{
-              marginLeft: "10px",
-              padding: "10px 15px",
-              backgroundColor: "#007bff",
-              color: "#fff",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-        >
-          {loading ? "Shortening..." : "Shorten"}
-        </button>
+                <input
+                    type="text"
+                    placeholder="Enter your URL..."
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className="w-full p-3 mb-4 text-black rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+                />
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={shortenUrl}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                >
+                    {loading ? "Shortening..." : "Shorten URL"}
+                </motion.button>
 
-        {shortenedUrl && (
-            <div style={{ marginTop: "20px" }}>
-              <p>Shortened URL:</p>
-              <a href={shortenedUrl} target="_blank" rel="noopener noreferrer">
-                {shortenedUrl}
-              </a>
-              <button
-                  onClick={copyToClipboard}
-                  style={{
-                    display: "block",
-                    margin: "10px auto",
-                    padding: "5px 10px",
-                    backgroundColor: "#28a745",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
-              >
-                Copy
-              </button>
-            </div>
-        )}
-      </div>
-  );
+                {error && <p className="text-red-400 mt-3">{error}</p>}
+
+                {shortenedUrl && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-6 p-4 bg-black/50 rounded-lg"
+                    >
+                        <p className="text-sm">Shortened URL:</p>
+                        <a
+                            href={shortenedUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-lg text-cyan-300 hover:underline break-all"
+                        >
+                            {shortenedUrl}
+                        </a>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={copyToClipboard}
+                            className="mt-3 py-2 px-4 bg-green-500 hover:bg-green-600 rounded-lg transition"
+                        >
+                            Copy to Clipboard
+                        </motion.button>
+                    </motion.div>
+                )}
+            </motion.div>
+        </div>
+    );
 }
-
-export default Home;
