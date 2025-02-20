@@ -11,14 +11,22 @@ export default function Home() {
 
     const shortenUrl = async () => {
         if (!originalUrl) return;
+
         setLoading(true);
         setError("");
+
+        let formattedUrl = originalUrl.trim();
+
+        // ✅ Auto-correct URL if missing "http://" or "https://"
+        if (!/^https?:\/\//i.test(formattedUrl)) {
+            formattedUrl = "https://" + formattedUrl;
+        }
 
         try {
             const response = await fetch(`${API_URL}/shorten`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ original_url: originalUrl }),
+                body: JSON.stringify({ original_url: formattedUrl }), // ✅ Send fixed URL
             });
 
             const data = await response.json();
@@ -29,7 +37,6 @@ export default function Home() {
             }
         } catch (err) {
             setError("Something went wrong!");
-            console.error(err);
         } finally {
             setLoading(false);
         }
